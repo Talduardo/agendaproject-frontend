@@ -1,34 +1,38 @@
+// src/context/AuthContext.jsx
+// SUBSTITUA o arquivo atual pelo conteúdo abaixo.
+// Agora usa Firebase Authentication + Firestore.
+
 import { createContext, useContext, useState, useEffect } from 'react'
+import { onAuthChange, logout as firebaseLogout } from '../services/authService'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser]     = useState(null)
-  const [role, setRole]     = useState(null)
+  const [user,    setUser]    = useState(null)   // Firebase user object
+  const [profile, setProfile] = useState(null)   // Firestore profile
+  const [role,    setRole]    = useState(null)   // 'empresa' | 'cliente'
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const u = localStorage.getItem('ap_user')
-    const r = localStorage.getItem('ap_role')
-    if (u && r) { setUser(JSON.parse(u)); setRole(r) }
-    setLoading(false)
+    // Escuta mudanças de autenticação em tempo real
+    const unsub = onAuthChange((firebaseUser, userProfile) => {
+      setUser(firebaseUser)
+      setProfile(userProfile)
+      setRole(userProfile?.role || null)
+      setLoading(false)
+    })
+    return unsub
   }, [])
 
-  const login = (userData, userRole) => {
-    localStorage.setItem('ap_user', JSON.stringify(userData))
-    localStorage.setItem('ap_role', userRole)
-    setUser(userData)
-    setRole(userRole)
-  }
-
-  const logout = () => {
-    localStorage.clear()
+  const logout = async () => {
+    await firebaseLogout()
     setUser(null)
+    setProfile(null)
     setRole(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, role, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, profile, role, loading, logout }}>
       {children}
     </AuthContext.Provider>
   )

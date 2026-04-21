@@ -1,0 +1,39 @@
+// src/services/firebase.js
+// Substitua os valores abaixo pelas credenciais do seu projeto Firebase
+// Firebase Console → Configurações do projeto → Seus apps → Web → Config
+
+import { initializeApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
+import { getMessaging, getToken, onMessage } from 'firebase/messaging'
+
+const firebaseConfig = {
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+}
+
+const app = initializeApp(firebaseConfig)
+
+export const auth      = getAuth(app)
+export const db        = getFirestore(app)
+export const messaging = (() => {
+  try { return getMessaging(app) } catch { return null }
+})()
+
+// Gera token FCM para notificações push
+export async function getFCMToken() {
+  if (!messaging) return null
+  try {
+    const sw = await navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    return await getToken(messaging, {
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: sw,
+    })
+  } catch { return null }
+}
+
+export { onMessage }
