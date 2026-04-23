@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { db, ALL_SLOTS, TAKEN_SLOTS, getNextDays, fmtWday, fmtDay, fmtMon, fmtYMD, fmtShort } from '../../services/db'
 import { useToast } from '../../context/ToastContext'
+import ThemeToggle from '../../components/ThemeToggle'
 
 export default function ClienteAgendar() {
   const [notifOn,    setNotifOn]    = useState(false)
@@ -44,7 +45,10 @@ export default function ClienteAgendar() {
             <div className="hero-brand">Agenda<span className="cli">Project</span> Pro</div>
             <div className="hero-sub">Portal do paciente</div>
           </div>
-          <div className="av-ring cli">LM</div>
+          <div className="hero-actions">
+            <ThemeToggle />
+            <div className="av-ring cli">LM</div>
+          </div>
         </div>
         <div className="hero-title">Olá, <em className="cli">Lucas</em> 👋</div>
       </div>
