@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import { ToastProvider } from './context/ToastContext'
-import { ThemeProvider } from './context/ThemeContext'
+import { AuthProvider, useAuth } from '../../context/AuthContext'
+import { ToastProvider } from '../../context/ToastContext'
+import { ThemeProvider } from '../../context/ThemeContext'
 
 import EmpresaLayout      from './pages/empresa/EmpresaLayout'
 import EmpresaAgenda      from './pages/empresa/EmpresaAgenda'
