@@ -43,7 +43,12 @@ export default function EmpresaLogin() {
 
   return (
     <div className="login-page">
-      <button className="login-theme-btn"><ThemeToggle /></button>
+
+      {/* DIV em vez de button — evita button dentro de button */}
+      <div style={{ position: 'absolute', top: 16, right: 16 }}>
+        <ThemeToggle />
+      </div>
+
       <div className="login-form">
         <div className="login-logo">
           Agenda<span style={{ color: 'var(--indigo2)' }}>Project</span> Pro
