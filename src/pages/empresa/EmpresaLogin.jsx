@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import ThemeToggle from '../../components/ThemeToggle'
 
 export default function EmpresaLogin() {
   const [mode, setMode]             = useState('login')
@@ -11,18 +12,10 @@ export default function EmpresaLogin() {
   const [confirm, setConfirm]       = useState('')
   const [error, setError]           = useState('')
   const [loading, setLoading]       = useState(false)
-  const [theme, setTheme]           = useState(() => localStorage.getItem('ap_theme') || 'dark')
   const { login }                   = useAuth()
   const navigate                    = useNavigate()
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('ap_theme', theme)
-  }, [theme])
-
-  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
     if (!email || !password) { setError('Preencha todos os campos.'); return }
     setLoading(true)
@@ -34,7 +27,7 @@ export default function EmpresaLogin() {
     }, 600)
   }
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault()
     setError('')
     if (!name || !email || !password) { setError('Preencha todos os campos.'); return }
@@ -50,42 +43,20 @@ export default function EmpresaLogin() {
 
   return (
     <div className="login-page">
-      {/* Botão de tema sem depender do ThemeContext */}
-      <button
-        onClick={toggleTheme}
-        style={{
-          position: 'fixed',
-          top: 16,
-          right: 16,
-          width: 40,
-          height: 40,
-          borderRadius: '50%',
-          border: '2px solid rgba(255,255,255,0.2)',
-          background: theme === 'dark' ? '#1e2130' : '#ffffff',
-          fontSize: 20,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 999,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-        }}
-      >
-        {theme === 'dark' ? '☀️' : '🌙'}
-      </button>
-
+      <button className="login-theme-btn"><ThemeToggle /></button>
       <div className="login-form">
         <div className="login-logo">
           Agenda<span style={{ color: 'var(--indigo2)' }}>Project</span> Pro
         </div>
         <div className="login-sub">
-          {mode === 'login' ? 'Painel da empresa' : 'Cadastrar nova empresa'}
+          {mode === 'login' ? 'Painel da empresa — faça login para continuar' : 'Cadastrar nova empresa'}
         </div>
 
         {/* Toggle Entrar / Cadastrar */}
         <div style={{ display: 'flex', background: 'var(--bg3)', borderRadius: 10, padding: 4, marginBottom: 24 }}>
           {['login', 'register'].map(m => (
-            <button key={m}
+            <button
+              key={m}
               type="button"
               onClick={() => { setMode(m); setError('') }}
               style={{
@@ -101,6 +72,7 @@ export default function EmpresaLogin() {
           ))}
         </div>
 
+        {/* FORMULÁRIO LOGIN */}
         {mode === 'login' && (
           <form onSubmit={handleLogin}>
             <div className="field">
@@ -120,6 +92,7 @@ export default function EmpresaLogin() {
           </form>
         )}
 
+        {/* FORMULÁRIO CADASTRO */}
         {mode === 'register' && (
           <form onSubmit={handleRegister}>
             <div className="field">
