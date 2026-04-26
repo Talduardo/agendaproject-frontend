@@ -42,7 +42,9 @@ export default function ClienteLogin() {
 
   return (
     <div className="login-page">
-      <button className="login-theme-btn"><ThemeToggle /></button>
+      <div style={{ position: 'absolute', top: 16, right: 16 }}>
+        <ThemeToggle />
+      </div>
       <div className="login-form">
 
         <div className="login-logo">
@@ -52,7 +54,6 @@ export default function ClienteLogin() {
           {mode === 'login' ? 'Portal do paciente' : 'Criar conta de paciente'}
         </div>
 
-        {/* Toggle Entrar / Cadastrar */}
         <div style={{ display: 'flex', background: 'var(--bg3)', borderRadius: 10, padding: 4, marginBottom: 24 }}>
           {['login', 'register'].map(m => (
             <button key={m}
@@ -71,7 +72,6 @@ export default function ClienteLogin() {
           ))}
         </div>
 
-        {/* FORMULÁRIO LOGIN */}
         {mode === 'login' && (
           <form onSubmit={handleLogin}>
             <div className="field">
@@ -91,7 +91,6 @@ export default function ClienteLogin() {
           </form>
         )}
 
-        {/* FORMULÁRIO CADASTRO */}
         {mode === 'register' && (
           <form onSubmit={handleRegister}>
             <div className="field">
