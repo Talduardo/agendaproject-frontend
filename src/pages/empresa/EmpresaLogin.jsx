@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import ThemeToggle from '../../components/ThemeToggle'
 
 export default function EmpresaLogin() {
   const [mode, setMode]             = useState('login')
@@ -12,8 +11,16 @@ export default function EmpresaLogin() {
   const [confirm, setConfirm]       = useState('')
   const [error, setError]           = useState('')
   const [loading, setLoading]       = useState(false)
+  const [theme, setTheme]           = useState(() => localStorage.getItem('ap_theme') || 'dark')
   const { login }                   = useAuth()
   const navigate                    = useNavigate()
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('ap_theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
 
   const handleLogin = (e) => {
     e.preventDefault()
@@ -43,11 +50,31 @@ export default function EmpresaLogin() {
 
   return (
     <div className="login-page">
-      <div style={{ position: 'absolute', top: 16, right: 16 }}>
-        <ThemeToggle />
-      </div>
-      <div className="login-form">
+      {/* Botão de tema sem depender do ThemeContext */}
+      <button
+        onClick={toggleTheme}
+        style={{
+          position: 'fixed',
+          top: 16,
+          right: 16,
+          width: 40,
+          height: 40,
+          borderRadius: '50%',
+          border: '2px solid rgba(255,255,255,0.2)',
+          background: theme === 'dark' ? '#1e2130' : '#ffffff',
+          fontSize: 20,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 999,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+        }}
+      >
+        {theme === 'dark' ? '☀️' : '🌙'}
+      </button>
 
+      <div className="login-form">
         <div className="login-logo">
           Agenda<span style={{ color: 'var(--indigo2)' }}>Project</span> Pro
         </div>
@@ -55,6 +82,7 @@ export default function EmpresaLogin() {
           {mode === 'login' ? 'Painel da empresa' : 'Cadastrar nova empresa'}
         </div>
 
+        {/* Toggle Entrar / Cadastrar */}
         <div style={{ display: 'flex', background: 'var(--bg3)', borderRadius: 10, padding: 4, marginBottom: 24 }}>
           {['login', 'register'].map(m => (
             <button key={m}
