@@ -4,21 +4,38 @@ import { useAuth } from '../../context/AuthContext'
 import ThemeToggle from '../../components/ThemeToggle'
 
 export default function EmpresaLogin() {
-  const [email, setEmail]       = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError]       = useState('')
-  const [loading, setLoading]   = useState(false)
-  const { login }               = useAuth()
-  const navigate                = useNavigate()
+  const [mode, setMode]             = useState('login')
+  const [name, setName]             = useState('')
+  const [clinicName, setClinicName] = useState('')
+  const [email, setEmail]           = useState('')
+  const [password, setPassword]     = useState('')
+  const [confirm, setConfirm]       = useState('')
+  const [error, setError]           = useState('')
+  const [loading, setLoading]       = useState(false)
+  const { login }                   = useAuth()
+  const navigate                    = useNavigate()
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
     if (!email || !password) { setError('Preencha todos os campos.'); return }
     setLoading(true)
     setError('')
-    // Autenticação mock — substitua por chamada real à API
     setTimeout(() => {
-      login({ id: '1', name: 'AgendaProject Pro', email }, 'empresa')
+      login({ id: '1', name: clinicName || 'AgendaProject Pro', email }, 'empresa')
+      navigate('/empresa')
+      setLoading(false)
+    }, 600)
+  }
+
+  const handleRegister = async (e) => {
+    e.preventDefault()
+    setError('')
+    if (!name || !email || !password) { setError('Preencha todos os campos.'); return }
+    if (password !== confirm) { setError('As senhas não coincidem.'); return }
+    if (password.length < 6) { setError('A senha deve ter ao menos 6 caracteres.'); return }
+    setLoading(true)
+    setTimeout(() => {
+      login({ id: '1', name, email, clinicName }, 'empresa')
       navigate('/empresa')
       setLoading(false)
     }, 600)
@@ -28,27 +45,86 @@ export default function EmpresaLogin() {
     <div className="login-page">
       <button className="login-theme-btn"><ThemeToggle /></button>
       <div className="login-form">
+
         <div className="login-logo">
           Agenda<span style={{ color: 'var(--indigo2)' }}>Project</span> Pro
         </div>
-        <div className="login-sub">Painel da empresa — faça login para continuar</div>
+        <div className="login-sub">
+          {mode === 'login' ? 'Painel da empresa' : 'Cadastrar nova empresa'}
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label className="field-label">E-mail</label>
-            <input className="input" type="email" placeholder="empresa@email.com"
-              value={email} onChange={e => setEmail(e.target.value)} required />
-          </div>
-          <div className="field">
-            <label className="field-label">Senha</label>
-            <input className="input" type="password" placeholder="••••••••"
-              value={password} onChange={e => setPassword(e.target.value)} required />
-          </div>
-          {error && <div style={{ color:'var(--rtext)', fontSize:13, marginBottom:10 }}>{error}</div>}
-          <button className="btn btn-indigo mt8" type="submit" disabled={loading}>
-            {loading ? 'Entrando...' : 'Entrar como empresa'}
-          </button>
-        </form>
+        <div style={{ display: 'flex', background: 'var(--bg3)', borderRadius: 10, padding: 4, marginBottom: 24 }}>
+          {['login', 'register'].map(m => (
+            <button key={m}
+              type="button"
+              onClick={() => { setMode(m); setError('') }}
+              style={{
+                flex: 1, padding: '8px 0', borderRadius: 8, border: 'none',
+                fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                background: mode === m ? 'var(--indigo)' : 'transparent',
+                color: mode === m ? '#fff' : 'var(--text2)',
+                transition: 'all .2s',
+              }}
+            >
+              {m === 'login' ? 'Entrar' : 'Cadastrar'}
+            </button>
+          ))}
+        </div>
+
+        {mode === 'login' && (
+          <form onSubmit={handleLogin}>
+            <div className="field">
+              <label className="field-label">E-mail</label>
+              <input className="input" type="email" placeholder="empresa@email.com"
+                value={email} onChange={e => setEmail(e.target.value)} required />
+            </div>
+            <div className="field">
+              <label className="field-label">Senha</label>
+              <input className="input" type="password" placeholder="••••••••"
+                value={password} onChange={e => setPassword(e.target.value)} required />
+            </div>
+            {error && <div style={{ color: 'var(--rtext)', fontSize: 13, marginBottom: 10 }}>{error}</div>}
+            <button className="btn btn-indigo mt8" type="submit" disabled={loading}>
+              {loading ? 'Entrando...' : 'Entrar como empresa'}
+            </button>
+          </form>
+        )}
+
+        {mode === 'register' && (
+          <form onSubmit={handleRegister}>
+            <div className="field">
+              <label className="field-label">Nome do responsável</label>
+              <input className="input" placeholder="Seu nome completo"
+                value={name} onChange={e => setName(e.target.value)} required />
+            </div>
+            <div className="field">
+              <label className="field-label">Nome da clínica</label>
+              <input className="input" placeholder="Ex: Clínica Saúde+"
+                value={clinicName} onChange={e => setClinicName(e.target.value)} required />
+            </div>
+            <div className="field">
+              <label className="field-label">E-mail</label>
+              <input className="input" type="email" placeholder="empresa@email.com"
+                value={email} onChange={e => setEmail(e.target.value)} required />
+            </div>
+            <div className="frow">
+              <div className="field">
+                <label className="field-label">Senha</label>
+                <input className="input" type="password" placeholder="Min. 6 caracteres"
+                  value={password} onChange={e => setPassword(e.target.value)} required />
+              </div>
+              <div className="field">
+                <label className="field-label">Confirmar</label>
+                <input className="input" type="password" placeholder="Repita a senha"
+                  value={confirm} onChange={e => setConfirm(e.target.value)} required />
+              </div>
+            </div>
+            {error && <div style={{ color: 'var(--rtext)', fontSize: 13, marginBottom: 10 }}>{error}</div>}
+            <button className="btn btn-indigo mt8" type="submit" disabled={loading}>
+              {loading ? 'Cadastrando...' : 'Criar conta da empresa'}
+            </button>
+          </form>
+        )}
 
         <div className="login-link">
           É paciente? <Link to="/cliente/login">Acesse o portal do paciente →</Link>
