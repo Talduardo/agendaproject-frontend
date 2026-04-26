@@ -15,7 +15,7 @@ export default function EmpresaLogin() {
   const { login }                   = useAuth()
   const navigate                    = useNavigate()
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault()
     if (!email || !password) { setError('Preencha todos os campos.'); return }
     setLoading(true)
@@ -27,7 +27,7 @@ export default function EmpresaLogin() {
     }, 600)
   }
 
-  const handleRegister = async (e) => {
+  const handleRegister = (e) => {
     e.preventDefault()
     setError('')
     if (!name || !email || !password) { setError('Preencha todos os campos.'); return }
@@ -43,7 +43,9 @@ export default function EmpresaLogin() {
 
   return (
     <div className="login-page">
-      <button className="login-theme-btn"><ThemeToggle /></button>
+      <div style={{ position: 'absolute', top: 16, right: 16 }}>
+        <ThemeToggle />
+      </div>
       <div className="login-form">
 
         <div className="login-logo">
