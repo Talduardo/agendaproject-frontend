@@ -15,11 +15,10 @@ export default function EmpresaLogin() {
   const { login }                   = useAuth()
   const navigate                    = useNavigate()
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault()
     if (!email || !password) { setError('Preencha todos os campos.'); return }
-    setLoading(true)
-    setError('')
+    setLoading(true); setError('')
     setTimeout(() => {
       login({ id: '1', name: clinicName || 'AgendaProject Pro', email }, 'empresa')
       navigate('/empresa')
@@ -27,12 +26,12 @@ export default function EmpresaLogin() {
     }, 600)
   }
 
-  const handleRegister = async (e) => {
+  const handleRegister = (e) => {
     e.preventDefault()
     setError('')
     if (!name || !email || !password) { setError('Preencha todos os campos.'); return }
     if (password !== confirm) { setError('As senhas não coincidem.'); return }
-    if (password.length < 6) { setError('A senha deve ter ao menos 6 caracteres.'); return }
+    if (password.length < 6)  { setError('Mínimo 6 caracteres.'); return }
     setLoading(true)
     setTimeout(() => {
       login({ id: '1', name, email, clinicName }, 'empresa')
@@ -43,9 +42,8 @@ export default function EmpresaLogin() {
 
   return (
     <div className="login-page">
-
-      {/* DIV em vez de button — evita button dentro de button */}
-      <div style={{ position: 'absolute', top: 16, right: 16 }}>
+      {/* ThemeToggle direto — sem wrapper button */}
+      <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
         <ThemeToggle />
       </div>
 
@@ -54,15 +52,12 @@ export default function EmpresaLogin() {
           Agenda<span style={{ color: 'var(--indigo2)' }}>Project</span> Pro
         </div>
         <div className="login-sub">
-          {mode === 'login' ? 'Painel da empresa — faça login para continuar' : 'Cadastrar nova empresa'}
+          {mode === 'login' ? 'Painel da empresa' : 'Cadastrar nova empresa'}
         </div>
 
-        {/* Toggle Entrar / Cadastrar */}
         <div style={{ display: 'flex', background: 'var(--bg3)', borderRadius: 10, padding: 4, marginBottom: 24 }}>
           {['login', 'register'].map(m => (
-            <button
-              key={m}
-              type="button"
+            <button key={m} type="button"
               onClick={() => { setMode(m); setError('') }}
               style={{
                 flex: 1, padding: '8px 0', borderRadius: 8, border: 'none',
@@ -70,14 +65,12 @@ export default function EmpresaLogin() {
                 background: mode === m ? 'var(--indigo)' : 'transparent',
                 color: mode === m ? '#fff' : 'var(--text2)',
                 transition: 'all .2s',
-              }}
-            >
+              }}>
               {m === 'login' ? 'Entrar' : 'Cadastrar'}
             </button>
           ))}
         </div>
 
-        {/* FORMULÁRIO LOGIN */}
         {mode === 'login' && (
           <form onSubmit={handleLogin}>
             <div className="field">
@@ -97,7 +90,6 @@ export default function EmpresaLogin() {
           </form>
         )}
 
-        {/* FORMULÁRIO CADASTRO */}
         {mode === 'register' && (
           <form onSubmit={handleRegister}>
             <div className="field">
