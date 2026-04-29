@@ -17,10 +17,9 @@ export default function ClienteLogin() {
   const handleLogin = (e) => {
     e.preventDefault()
     if (!email || !password) { setError('Preencha todos os campos.'); return }
-    setLoading(true)
-    setError('')
+    setLoading(true); setError('')
     setTimeout(() => {
-      login({ id: '2', name: 'Lucas Martins', email }, 'cliente')
+      login({ id: '2', name: name || 'Paciente', email }, 'cliente')
       navigate('/cliente')
       setLoading(false)
     }, 600)
@@ -31,7 +30,7 @@ export default function ClienteLogin() {
     setError('')
     if (!name || !email || !password) { setError('Preencha todos os campos.'); return }
     if (password !== confirm) { setError('As senhas não coincidem.'); return }
-    if (password.length < 6) { setError('A senha deve ter ao menos 6 caracteres.'); return }
+    if (password.length < 6)  { setError('Mínimo 6 caracteres.'); return }
     setLoading(true)
     setTimeout(() => {
       login({ id: String(Date.now()), name, email }, 'cliente')
@@ -42,9 +41,8 @@ export default function ClienteLogin() {
 
   return (
     <div className="login-page">
-
-      {/* DIV em vez de button — evita button dentro de button */}
-      <div style={{ position: 'absolute', top: 16, right: 16 }}>
+      {/* ThemeToggle direto — sem wrapper button */}
+      <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
         <ThemeToggle />
       </div>
 
@@ -53,15 +51,12 @@ export default function ClienteLogin() {
           Agenda<span style={{ color: 'var(--etext)' }}>Project</span> Pro
         </div>
         <div className="login-sub">
-          {mode === 'login' ? 'Portal do paciente — acesse seus agendamentos' : 'Criar conta de paciente'}
+          {mode === 'login' ? 'Portal do paciente' : 'Criar conta de paciente'}
         </div>
 
-        {/* Toggle Entrar / Cadastrar */}
         <div style={{ display: 'flex', background: 'var(--bg3)', borderRadius: 10, padding: 4, marginBottom: 24 }}>
           {['login', 'register'].map(m => (
-            <button
-              key={m}
-              type="button"
+            <button key={m} type="button"
               onClick={() => { setMode(m); setError('') }}
               style={{
                 flex: 1, padding: '8px 0', borderRadius: 8, border: 'none',
@@ -69,14 +64,12 @@ export default function ClienteLogin() {
                 background: mode === m ? 'var(--emerald)' : 'transparent',
                 color: mode === m ? '#fff' : 'var(--text2)',
                 transition: 'all .2s',
-              }}
-            >
+              }}>
               {m === 'login' ? 'Entrar' : 'Cadastrar'}
             </button>
           ))}
         </div>
 
-        {/* FORMULÁRIO LOGIN */}
         {mode === 'login' && (
           <form onSubmit={handleLogin}>
             <div className="field">
@@ -96,7 +89,6 @@ export default function ClienteLogin() {
           </form>
         )}
 
-        {/* FORMULÁRIO CADASTRO */}
         {mode === 'register' && (
           <form onSubmit={handleRegister}>
             <div className="field">
