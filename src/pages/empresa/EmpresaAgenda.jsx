@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { db, getInitials, now } from '../../services/db'
 import { useToast } from '../../context/ToastContext'
 import Badge from '../../components/Badge'
-import ThemeToggle from '../../components/ThemeToggle'
 
 function NovoModal({ onClose, onSave }) {
-  const [form, setForm] = useState({ name:'', svc:'Consulta Geral', time:'09:00', status:'confirmed' })
+  const [form, setForm] = useState({ name: '', svc: 'Consulta Geral', time: '09:00', status: 'confirmed' })
   const toast = useToast()
   const svcs  = db.services.filter(s => s.active).map(s => s.name)
 
@@ -31,11 +30,11 @@ function NovoModal({ onClose, onSave }) {
         <div className="field">
           <label className="field-label">Paciente</label>
           <input className="input" placeholder="Nome completo"
-            value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+            value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
         </div>
         <div className="field">
           <label className="field-label">Serviço</label>
-          <select className="input" value={form.svc} onChange={e => setForm({...form, svc: e.target.value})}>
+          <select className="input" value={form.svc} onChange={e => setForm({ ...form, svc: e.target.value })}>
             {svcs.map(s => <option key={s}>{s}</option>)}
           </select>
         </div>
@@ -43,11 +42,11 @@ function NovoModal({ onClose, onSave }) {
           <div className="field">
             <label className="field-label">Horário</label>
             <input className="input" type="time" value={form.time}
-              onChange={e => setForm({...form, time: e.target.value})} />
+              onChange={e => setForm({ ...form, time: e.target.value })} />
           </div>
           <div className="field">
             <label className="field-label">Status</label>
-            <select className="input" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
+            <select className="input" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
               <option value="confirmed">Confirmado</option>
               <option value="waiting">Aguardando</option>
               <option value="scheduled">Agendado</option>
@@ -62,9 +61,9 @@ function NovoModal({ onClose, onSave }) {
 }
 
 export default function EmpresaAgenda() {
-  const [appts, setAppts]     = useState([...db.appointments])
-  const [search, setSearch]   = useState('')
-  const [modal, setModal]     = useState(false)
+  const [appts,  setAppts] = useState([...db.appointments])
+  const [search, setSearch] = useState('')
+  const [modal,  setModal]  = useState(false)
   const toast = useToast()
 
   const reload = () => setAppts([...db.appointments])
@@ -82,7 +81,7 @@ export default function EmpresaAgenda() {
     toast.show(`${appt.name} confirmado`, 'Notificação push enviada ao paciente')
   }
 
-  const today = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'short' })
+  const today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'short' })
 
   return (
     <>
@@ -90,38 +89,35 @@ export default function EmpresaAgenda() {
         <div className="hero-top">
           <div>
             <div className="hero-brand">Agenda<span>Project</span> Pro</div>
-            <div className="hero-sub" style={{ textTransform:'capitalize' }}>{today}</div>
+            <div className="hero-sub" style={{ textTransform: 'capitalize' }}>{today}</div>
           </div>
-          <div className="hero-actions">
-            <ThemeToggle />
-            <div className="av-ring">AP</div>
-          </div>
+          <div className="av-ring">AP</div>
         </div>
         <div className="hero-title">Painel da <em>empresa</em></div>
       </div>
 
       <div className="kpi-grid">
         <div className="kpi">
-          <div className="kpi-val" style={{ color:'var(--etext)' }}>
+          <div className="kpi-val" style={{ color: 'var(--etext)' }}>
             {appts.filter(a => a.status === 'confirmed').length}
           </div>
-          <div className="kpi-lbl"><span className="kpi-dot" style={{ background:'var(--emerald)' }} />Confirmados</div>
+          <div className="kpi-lbl"><span className="kpi-dot" style={{ background: 'var(--emerald)' }} />Confirmados</div>
         </div>
         <div className="kpi">
-          <div className="kpi-val" style={{ color:'var(--atext)' }}>
+          <div className="kpi-val" style={{ color: 'var(--atext)' }}>
             {appts.filter(a => a.status === 'waiting').length}
           </div>
-          <div className="kpi-lbl"><span className="kpi-dot" style={{ background:'var(--amber)' }} />Aguardando</div>
+          <div className="kpi-lbl"><span className="kpi-dot" style={{ background: 'var(--amber)' }} />Aguardando</div>
         </div>
         <div className="kpi">
-          <div className="kpi-val" style={{ color:'var(--itext)' }}>{appts.length}</div>
-          <div className="kpi-lbl"><span className="kpi-dot" style={{ background:'var(--indigo)' }} />Total hoje</div>
+          <div className="kpi-val" style={{ color: 'var(--itext)' }}>{appts.length}</div>
+          <div className="kpi-lbl"><span className="kpi-dot" style={{ background: 'var(--indigo)' }} />Total hoje</div>
         </div>
         <div className="kpi">
-          <div className="kpi-val" style={{ color:'var(--stext)' }}>
+          <div className="kpi-val" style={{ color: 'var(--stext)' }}>
             R${(appts.length * 150).toLocaleString('pt-BR')}
           </div>
-          <div className="kpi-lbl"><span className="kpi-dot" style={{ background:'var(--sky)' }} />Receita est.</div>
+          <div className="kpi-lbl"><span className="kpi-dot" style={{ background: 'var(--sky)' }} />Receita est.</div>
         </div>
       </div>
 
@@ -132,7 +128,6 @@ export default function EmpresaAgenda() {
         </div>
         <input className="search-bar" placeholder="Buscar paciente ou serviço..."
           value={search} onChange={e => setSearch(e.target.value)} />
-
         {filtered.map(a => (
           <div key={a.id} className={`appt ${a.status}`} onClick={() => confirm(a)}>
             <div className="av-md" style={{ background: a.bg, color: a.c }}>{a.av}</div>
@@ -146,10 +141,14 @@ export default function EmpresaAgenda() {
             </div>
           </div>
         ))}
+        {filtered.length === 0 && (
+          <div style={{ color: 'var(--text2)', fontSize: 14, padding: '20px 0', textAlign: 'center' }}>
+            Nenhum agendamento encontrado.
+          </div>
+        )}
       </div>
 
       <button className="fab" onClick={() => setModal(true)}>+</button>
-
       {modal && <NovoModal onClose={() => setModal(false)} onSave={reload} />}
     </>
   )
