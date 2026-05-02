@@ -1,6 +1,7 @@
+// src/pages/cliente/ClienteLogin.jsx
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { login, register } from '../../services/authService'
 import ThemeToggle from '../../components/ThemeToggle'
 
 export default function ClienteLogin() {
@@ -11,37 +12,41 @@ export default function ClienteLogin() {
   const [confirm, setConfirm]   = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
-  const { login }               = useAuth()
   const navigate                = useNavigate()
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    if (!email || !password) { setError('Preencha todos os campos.'); return }
-    setLoading(true); setError('')
-    setTimeout(() => {
-      login({ id: '2', name: name || 'Paciente', email }, 'cliente')
+    setError(''); setLoading(true)
+    try {
+      await login(email, password, 'cliente')
       navigate('/cliente')
+    } catch (err) {
+      setError(err.message)
+    } finally {
       setLoading(false)
-    }, 600)
+    }
   }
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault()
     setError('')
     if (!name || !email || !password) { setError('Preencha todos os campos.'); return }
     if (password !== confirm) { setError('As senhas não coincidem.'); return }
     if (password.length < 6)  { setError('Mínimo 6 caracteres.'); return }
     setLoading(true)
-    setTimeout(() => {
-      login({ id: String(Date.now()), name, email }, 'cliente')
+    try {
+      await register(name, email, password, 'cliente')
       navigate('/cliente')
+    } catch (err) {
+      if (err.code === 'auth/email-already-in-use') setError('Este e-mail já está cadastrado.')
+      else setError(err.message)
+    } finally {
       setLoading(false)
-    }, 600)
+    }
   }
 
   return (
     <div className="login-page">
-      {/* ThemeToggle direto — sem wrapper button */}
       <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
         <ThemeToggle />
       </div>
@@ -84,7 +89,7 @@ export default function ClienteLogin() {
             </div>
             {error && <div style={{ color: 'var(--rtext)', fontSize: 13, marginBottom: 10 }}>{error}</div>}
             <button className="btn btn-emerald mt8" type="submit" disabled={loading}>
-              {loading ? 'Entrando...' : 'Entrar como paciente'}
+              {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
         )}
@@ -115,7 +120,7 @@ export default function ClienteLogin() {
             </div>
             {error && <div style={{ color: 'var(--rtext)', fontSize: 13, marginBottom: 10 }}>{error}</div>}
             <button className="btn btn-emerald mt8" type="submit" disabled={loading}>
-              {loading ? 'Cadastrando...' : 'Criar conta de paciente'}
+              {loading ? 'Cadastrando...' : 'Cadastrar'}
             </button>
           </form>
         )}
