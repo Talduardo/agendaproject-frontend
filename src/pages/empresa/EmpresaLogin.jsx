@@ -1,6 +1,7 @@
+// src/pages/empresa/EmpresaLogin.jsx
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { login, register } from '../../services/authService'
 import ThemeToggle from '../../components/ThemeToggle'
 
 export default function EmpresaLogin() {
@@ -12,37 +13,41 @@ export default function EmpresaLogin() {
   const [confirm, setConfirm]       = useState('')
   const [error, setError]           = useState('')
   const [loading, setLoading]       = useState(false)
-  const { login }                   = useAuth()
   const navigate                    = useNavigate()
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    if (!email || !password) { setError('Preencha todos os campos.'); return }
-    setLoading(true); setError('')
-    setTimeout(() => {
-      login({ id: '1', name: clinicName || 'AgendaProject Pro', email }, 'empresa')
+    setError(''); setLoading(true)
+    try {
+      await login(email, password, 'empresa')
       navigate('/empresa')
+    } catch (err) {
+      setError(err.message)
+    } finally {
       setLoading(false)
-    }, 600)
+    }
   }
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault()
     setError('')
-    if (!name || !email || !password) { setError('Preencha todos os campos.'); return }
+    if (!name || !clinicName || !email || !password) { setError('Preencha todos os campos.'); return }
     if (password !== confirm) { setError('As senhas não coincidem.'); return }
     if (password.length < 6)  { setError('Mínimo 6 caracteres.'); return }
     setLoading(true)
-    setTimeout(() => {
-      login({ id: '1', name, email, clinicName }, 'empresa')
+    try {
+      await register(name, email, password, 'empresa', { clinicName })
       navigate('/empresa')
+    } catch (err) {
+      if (err.code === 'auth/email-already-in-use') setError('Este e-mail já está cadastrado.')
+      else setError(err.message)
+    } finally {
       setLoading(false)
-    }, 600)
+    }
   }
 
   return (
     <div className="login-page">
-      {/* ThemeToggle direto — sem wrapper button */}
       <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
         <ThemeToggle />
       </div>
@@ -85,7 +90,7 @@ export default function EmpresaLogin() {
             </div>
             {error && <div style={{ color: 'var(--rtext)', fontSize: 13, marginBottom: 10 }}>{error}</div>}
             <button className="btn btn-indigo mt8" type="submit" disabled={loading}>
-              {loading ? 'Entrando...' : 'Entrar como empresa'}
+              {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
         )}
@@ -121,7 +126,7 @@ export default function EmpresaLogin() {
             </div>
             {error && <div style={{ color: 'var(--rtext)', fontSize: 13, marginBottom: 10 }}>{error}</div>}
             <button className="btn btn-indigo mt8" type="submit" disabled={loading}>
-              {loading ? 'Cadastrando...' : 'Criar conta da empresa'}
+              {loading ? 'Cadastrando...' : 'Cadastrar'}
             </button>
           </form>
         )}
