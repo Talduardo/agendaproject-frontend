@@ -1,9 +1,9 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 
 const TABS = [
-  { path: '/cliente',                icon: '📅', label: 'Agendar' },
-  { path: '/cliente/agendamentos',   icon: '📋', label: 'Meus'    },
-  { path: '/cliente/chat',           icon: '💬', label: 'Chat'    },
+  { path: '/cliente',              icon: '📅', label: 'Agendar' },
+  { path: '/cliente/agendamentos', icon: '📋', label: 'Meus'    },
+  { path: '/cliente/chat',         icon: '💬', label: 'Chat'    },
 ]
 
 export default function ClienteLayout() {
