@@ -1,5 +1,4 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import ThemeToggle from '../../components/ThemeToggle'
 
 const TABS = [
   { path: '/empresa',          icon: '📅', label: 'Agenda'    },
@@ -17,13 +16,7 @@ export default function EmpresaLayout() {
 
   return (
     <div className="app-shell">
-      {/* Toggle de tema fixo no canto — disponível em todas as páginas da empresa */}
-      <div style={{ position: 'fixed', top: 14, right: 16, zIndex: 30 }}>
-        <ThemeToggle />
-      </div>
-
       <Outlet />
-
       <nav className="bottom-nav">
         {TABS.map(t => (
           <button
