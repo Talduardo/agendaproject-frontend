@@ -1,10 +1,7 @@
-// src/App.jsx
-// SUBSTITUA o arquivo atual por este.
-// Guard agora usa Firebase — verifica role em tempo real.
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
 
 import EmpresaLayout      from './pages/empresa/EmpresaLayout'
 import EmpresaAgenda      from './pages/empresa/EmpresaAgenda'
@@ -19,58 +16,73 @@ import ClienteAgendamentos from './pages/cliente/ClienteAgendamentos'
 import ClienteChat         from './pages/cliente/ClienteChat'
 import ClienteLogin        from './pages/cliente/ClienteLogin'
 
-// Protege rotas verificando o papel do usuário no Firebase
 function Guard({ children, role }) {
-  const { user, role: userRole, loading } = useAuth()
-
-  if (loading) {
-    return (
-      <div className="loading">
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 20, marginBottom: 8 }}>⚡</div>
-          <div>Verificando acesso...</div>
-        </div>
-      </div>
-    )
-  }
-
-  // Não logado → redireciona para login
-  if (!user) return <Navigate to={`/${role}/login`} replace />
-
-  // Logado mas com papel errado → redireciona para o login correto
-  if (userRole !== role) return <Navigate to={`/${userRole}/login`} replace />
-
+  const { user, role: r, loading } = useAuth()
+  if (loading) return <div className="loading">Carregando...</div>
+  if (!user || r !== role) return <Navigate to={`/${role}/login`} replace />
   return children
+}
+
+// Botão de tema global — aparece em todas as páginas
+function GlobalThemeToggle() {
+  const { theme, toggle } = useTheme()
+  return (
+    <button
+      onClick={toggle}
+      style={{
+        position: 'fixed',
+        top: 14,
+        right: 16,
+        zIndex: 999,
+        width: 38,
+        height: 38,
+        borderRadius: '50%',
+        border: 'none',
+        background: theme === 'dark' ? '#1e2130' : '#ffffff',
+        boxShadow: theme === 'dark'
+          ? '0 0 0 1px rgba(255,255,255,0.15), 0 2px 8px rgba(0,0,0,0.4)'
+          : '0 0 0 1px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.15)',
+        cursor: 'pointer',
+        fontSize: 18,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {theme === 'dark' ? '☀️' : '🌙'}
+    </button>
+  )
 }
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* ── EMPRESA ── */}
-            <Route path="/empresa/login" element={<EmpresaLogin />} />
-            <Route path="/empresa" element={<Guard role="empresa"><EmpresaLayout /></Guard>}>
-              <Route index          element={<EmpresaAgenda />} />
-              <Route path="clientes" element={<EmpresaClientes />} />
-              <Route path="servicos" element={<EmpresaServicos />} />
-              <Route path="chat"     element={<EmpresaChat />} />
-            </Route>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <BrowserRouter>
+            <GlobalThemeToggle />
+            <Routes>
+              <Route path="/empresa/login" element={<EmpresaLogin />} />
+              <Route path="/empresa" element={<Guard role="empresa"><EmpresaLayout /></Guard>}>
+                <Route index          element={<EmpresaAgenda />} />
+                <Route path="clientes" element={<EmpresaClientes />} />
+                <Route path="servicos" element={<EmpresaServicos />} />
+                <Route path="chat"     element={<EmpresaChat />} />
+              </Route>
 
-            {/* ── CLIENTE ── */}
-            <Route path="/cliente/login" element={<ClienteLogin />} />
-            <Route path="/cliente" element={<Guard role="cliente"><ClienteLayout /></Guard>}>
-              <Route index               element={<ClienteAgendar />} />
-              <Route path="agendamentos" element={<ClienteAgendamentos />} />
-              <Route path="chat"         element={<ClienteChat />} />
-            </Route>
+              <Route path="/cliente/login" element={<ClienteLogin />} />
+              <Route path="/cliente" element={<Guard role="cliente"><ClienteLayout /></Guard>}>
+                <Route index               element={<ClienteAgendar />} />
+                <Route path="agendamentos" element={<ClienteAgendamentos />} />
+                <Route path="chat"         element={<ClienteChat />} />
+              </Route>
 
-            <Route path="/" element={<Navigate to="/empresa/login" replace />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </ToastProvider>
-    </AuthProvider>
+              <Route path="/" element={<Navigate to="/empresa/login" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
