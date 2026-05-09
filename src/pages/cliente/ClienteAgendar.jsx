@@ -1,19 +1,31 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { db, ALL_SLOTS, TAKEN_SLOTS, getNextDays, fmtWday, fmtDay, fmtMon, fmtYMD, fmtShort } from '../../services/db'
 import { useToast } from '../../context/ToastContext'
 import { useAuth } from '../../context/AuthContext'
+import { logout } from '../../services/authService'
 
 export default function ClienteAgendar() {
   const [notifOn,   setNotifOn]   = useState(false)
   const [selSvc,    setSelSvc]    = useState(null)
   const [selDayIdx, setSelDayIdx] = useState(null)
   const [selSlot,   setSelSlot]   = useState(null)
-  const toast = useToast()
-  const { user } = useAuth()
+  const [showMenu,  setShowMenu]  = useState(false)
+  const toast    = useToast()
+  const { profile } = useAuth()
+  const navigate = useNavigate()
   const days = getNextDays(7)
   const svcs = db.services.filter(s => s.active)
 
-  const firstName = user?.name?.split(' ')[0] || 'Paciente'
+  const firstName = profile?.name?.split(' ')[0] || 'Paciente'
+  const initials  = profile?.name
+    ? profile.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()
+    : 'LM'
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/cliente/login')
+  }
 
   const activateNotif = () => {
     if ('Notification' in window) {
@@ -27,14 +39,14 @@ export default function ClienteAgendar() {
       })
     } else {
       setNotifOn(true)
-      toast.show('Notificações ativadas!', 'Token FCM gerado e salvo', 'info')
+      toast.show('Notificações ativadas!', '', 'info')
     }
   }
 
   const confirmBooking = () => {
-    if (selSvc === null) { toast.show('Selecione um serviço', '', 'warning'); return }
+    if (selSvc === null)    { toast.show('Selecione um serviço', '', 'warning'); return }
     if (selDayIdx === null) { toast.show('Selecione um dia', '', 'warning'); return }
-    if (!selSlot) { toast.show('Selecione um horário', '', 'warning'); return }
+    if (!selSlot)           { toast.show('Selecione um horário', '', 'warning'); return }
     const svc = svcs[selSvc]
     const day = days[selDayIdx]
     toast.show('Consulta agendada!', `${svc.name} · ${fmtShort(day)} às ${selSlot}`)
@@ -51,8 +63,37 @@ export default function ClienteAgendar() {
             </div>
             <div className="hero-sub">Portal do paciente</div>
           </div>
-          <div className="av-ring cli">
-            {user?.name ? user.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase() : 'LM'}
+          <div style={{ position: 'relative' }}>
+            <div
+              className="av-ring cli"
+              style={{ cursor: 'pointer' }}
+              onClick={() => setShowMenu(m => !m)}
+              title="Menu"
+            >
+              {initials}
+            </div>
+            {showMenu && (
+              <div style={{
+                position: 'absolute', top: 44, right: 0, zIndex: 50,
+                background: 'var(--bg2)', border: '1px solid var(--border2)',
+                borderRadius: 12, padding: 8, minWidth: 160,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+              }}>
+                <div style={{ padding: '6px 12px', fontSize: 13, color: 'var(--text2)', borderBottom: '1px solid var(--border)', marginBottom: 4 }}>
+                  {profile?.name || 'Paciente'}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    width: '100%', padding: '8px 12px', background: 'none', border: 'none',
+                    color: 'var(--rtext)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    textAlign: 'left', borderRadius: 8, fontFamily: 'inherit',
+                  }}
+                >
+                  🚪 Sair da conta
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div className="hero-title">
