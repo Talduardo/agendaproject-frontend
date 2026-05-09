@@ -1,6 +1,9 @@
 import { useState } from 'react'
-import { db, getInitials, now } from '../../services/db'
+import { useNavigate } from 'react-router-dom'
+import { db, getInitials } from '../../services/db'
 import { useToast } from '../../context/ToastContext'
+import { useAuth } from '../../context/AuthContext'
+import { logout } from '../../services/authService'
 import Badge from '../../components/Badge'
 
 function NovoModal({ onClose, onSave }) {
@@ -61,10 +64,13 @@ function NovoModal({ onClose, onSave }) {
 }
 
 export default function EmpresaAgenda() {
-  const [appts,  setAppts] = useState([...db.appointments])
+  const [appts,  setAppts]  = useState([...db.appointments])
   const [search, setSearch] = useState('')
   const [modal,  setModal]  = useState(false)
-  const toast = useToast()
+  const [showMenu, setShowMenu] = useState(false)
+  const toast    = useToast()
+  const { profile } = useAuth()
+  const navigate = useNavigate()
 
   const reload = () => setAppts([...db.appointments])
 
@@ -81,7 +87,13 @@ export default function EmpresaAgenda() {
     toast.show(`${appt.name} confirmado`, 'Notificação push enviada ao paciente')
   }
 
+  const handleLogout = async () => {
+    await logout()
+    navigate('/empresa/login')
+  }
+
   const today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'short' })
+  const initials = profile?.name ? getInitials(profile.name) : 'AP'
 
   return (
     <>
@@ -91,7 +103,38 @@ export default function EmpresaAgenda() {
             <div className="hero-brand">Agenda<span>Project</span> Pro</div>
             <div className="hero-sub" style={{ textTransform: 'capitalize' }}>{today}</div>
           </div>
-          <div className="av-ring">AP</div>
+          <div style={{ position: 'relative' }}>
+            <div
+              className="av-ring"
+              style={{ cursor: 'pointer' }}
+              onClick={() => setShowMenu(m => !m)}
+              title="Menu"
+            >
+              {initials}
+            </div>
+            {showMenu && (
+              <div style={{
+                position: 'absolute', top: 44, right: 0, zIndex: 50,
+                background: 'var(--bg2)', border: '1px solid var(--border2)',
+                borderRadius: 12, padding: 8, minWidth: 160,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+              }}>
+                <div style={{ padding: '6px 12px', fontSize: 13, color: 'var(--text2)', borderBottom: '1px solid var(--border)', marginBottom: 4 }}>
+                  {profile?.name || 'Empresa'}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    width: '100%', padding: '8px 12px', background: 'none', border: 'none',
+                    color: 'var(--rtext)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    textAlign: 'left', borderRadius: 8, fontFamily: 'inherit',
+                  }}
+                >
+                  🚪 Sair da conta
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         <div className="hero-title">Painel da <em>empresa</em></div>
       </div>
