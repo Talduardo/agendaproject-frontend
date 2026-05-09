@@ -1,50 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { login, register } from '../../services/authService'
-import ThemeToggle from '../../components/ThemeToggle'
-
-function EyeIcon({ show }) {
-  return show ? (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-      <line x1="1" y1="1" x2="23" y2="23"/>
-    </svg>
-  ) : (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
-  )
-}
-
-function PasswordInput({ value, onChange, placeholder }) {
-  const [show, setShow] = useState(false)
-  return (
-    <div style={{ position: 'relative' }}>
-      <input
-        className="input"
-        type={show ? 'text' : 'password'}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        style={{ paddingRight: 42 }}
-        required
-      />
-      <button
-        type="button"
-        onClick={() => setShow(s => !s)}
-        style={{
-          position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: 'var(--text2)', display: 'flex', alignItems: 'center', padding: 0,
-        }}
-      >
-        <EyeIcon show={show} />
-      </button>
-    </div>
-  )
-}
 
 export default function ClienteLogin() {
   const [mode, setMode]         = useState('login')
@@ -52,6 +8,8 @@ export default function ClienteLogin() {
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm]   = useState('')
+  const [showPwd, setShowPwd]   = useState(false)
+  const [showCfm, setShowCfm]   = useState(false)
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
   const navigate                = useNavigate()
@@ -64,9 +22,7 @@ export default function ClienteLogin() {
       navigate('/cliente')
     } catch (err) {
       setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
   const handleRegister = async (e) => {
@@ -80,38 +36,44 @@ export default function ClienteLogin() {
       await register(name, email, password, 'cliente')
       navigate('/cliente')
     } catch (err) {
-      if (err.code === 'auth/email-already-in-use') setError('Este e-mail já está cadastrado.')
+      if (err.code === 'auth/email-already-in-use') setError('E-mail já cadastrado.')
       else setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
-  return (
-    <div className="login-page">
-      <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
-        <ThemeToggle />
-      </div>
+  const eyeBtn = (show, setShow) => (
+    <button type="button" onClick={() => setShow(s => !s)} style={{
+      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+      background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+      color: 'var(--text2)', fontSize: 18, lineHeight: 1,
+    }}>
+      {show ? '🙈' : '👁️'}
+    </button>
+  )
 
-      <div className="login-form">
-        <div className="login-logo">
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '0 24px', background: 'var(--bg)', position: 'relative',
+    }}>
+      <div style={{ width: '100%', maxWidth: 360 }}>
+        <div style={{ fontSize: 28, fontWeight: 800, textAlign: 'center', marginBottom: 4, color: 'var(--text)' }}>
           Agenda<span style={{ color: 'var(--etext)' }}>Project</span> Pro
         </div>
-        <div className="login-sub">
+        <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 24, textAlign: 'center' }}>
           {mode === 'login' ? 'Portal do paciente' : 'Criar conta de paciente'}
         </div>
 
+        {/* Toggle */}
         <div style={{ display: 'flex', background: 'var(--bg3)', borderRadius: 10, padding: 4, marginBottom: 24 }}>
           {['login', 'register'].map(m => (
-            <button key={m} type="button"
-              onClick={() => { setMode(m); setError('') }}
-              style={{
-                flex: 1, padding: '8px 0', borderRadius: 8, border: 'none',
-                fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                background: mode === m ? 'var(--emerald)' : 'transparent',
-                color: mode === m ? '#fff' : 'var(--text2)',
-                transition: 'all .2s',
-              }}>
+            <button key={m} type="button" onClick={() => { setMode(m); setError('') }} style={{
+              flex: 1, padding: '8px 0', borderRadius: 8, border: 'none',
+              fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              background: mode === m ? 'var(--emerald)' : 'transparent',
+              color: mode === m ? '#fff' : 'var(--text2)', transition: 'all .2s',
+            }}>
               {m === 'login' ? 'Entrar' : 'Cadastrar'}
             </button>
           ))}
@@ -126,7 +88,13 @@ export default function ClienteLogin() {
             </div>
             <div className="field">
               <label className="field-label">Senha</label>
-              <PasswordInput value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
+              <div style={{ position: 'relative' }}>
+                <input className="input" type={showPwd ? 'text' : 'password'}
+                  placeholder="••••••••" value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  style={{ paddingRight: 42 }} required />
+                {eyeBtn(showPwd, setShowPwd)}
+              </div>
             </div>
             {error && <div style={{ color: 'var(--rtext)', fontSize: 13, marginBottom: 10 }}>{error}</div>}
             <button className="btn btn-emerald mt8" type="submit" disabled={loading}>
@@ -150,11 +118,23 @@ export default function ClienteLogin() {
             <div className="frow">
               <div className="field">
                 <label className="field-label">Senha</label>
-                <PasswordInput value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 6 caracteres" />
+                <div style={{ position: 'relative' }}>
+                  <input className="input" type={showPwd ? 'text' : 'password'}
+                    placeholder="Min. 6 caracteres" value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    style={{ paddingRight: 42 }} required />
+                  {eyeBtn(showPwd, setShowPwd)}
+                </div>
               </div>
               <div className="field">
                 <label className="field-label">Confirmar</label>
-                <PasswordInput value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repita a senha" />
+                <div style={{ position: 'relative' }}>
+                  <input className="input" type={showCfm ? 'text' : 'password'}
+                    placeholder="Repita a senha" value={confirm}
+                    onChange={e => setConfirm(e.target.value)}
+                    style={{ paddingRight: 42 }} required />
+                  {eyeBtn(showCfm, setShowCfm)}
+                </div>
               </div>
             </div>
             {error && <div style={{ color: 'var(--rtext)', fontSize: 13, marginBottom: 10 }}>{error}</div>}
@@ -164,8 +144,8 @@ export default function ClienteLogin() {
           </form>
         )}
 
-        <div className="login-link">
-          É da clínica? <Link to="/empresa/login" style={{ color: 'var(--indigo2)' }}>
+        <div style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: 'var(--text2)' }}>
+          É da clínica? <Link to="/empresa/login" style={{ color: 'var(--indigo2)', textDecoration: 'none', fontWeight: 600 }}>
             Acesse o painel da empresa →
           </Link>
         </div>
